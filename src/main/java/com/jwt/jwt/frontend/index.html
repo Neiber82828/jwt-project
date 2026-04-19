@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login JWT</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input type="text" id="username" placeholder="Usuario"><br><br>
+<input type="password" id="password" placeholder="Contraseña"><br><br>
+
+<button onclick="login()">Login</button>
+<button onclick="test()">Probar endpoint protegido</button>
+<button onclick="logout()">Logout</button>
+
+<p id="result"></p>
+
+<script>
+async function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch("http://localhost:8081/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            document.getElementById("result").innerText = error.error;
+            return;
+        }
+
+        const token = await response.text();
+
+        localStorage.setItem("token", token);
+
+        document.getElementById("result").innerText = "Login exitoso 🔥";
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("result").innerText = "Error de conexión";
+    }
+}
+
+async function test() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        document.getElementById("result").innerText = "No hay token, inicia sesión primero";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8081/auth/test", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!response.ok) {
+            document.getElementById("result").innerText = "Acceso denegado ❌";
+            return;
+        }
+
+        const data = await response.text();
+
+        document.getElementById("result").innerText = data;
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("result").innerText = "Error en la petición";
+    }
+}
+
+function logout() {
+    localStorage.removeItem("token");
+    document.getElementById("result").innerText = "Sesión cerrada 🚪";
+}
+</script>
+
+</body>
+</html>

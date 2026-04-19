@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login JWT</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input type="text" id="username" placeholder="Usuario">
+<input type="password" id="password" placeholder="Contraseña">
+<button onclick="login()">Login</button>
+
+<script>
+async function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    const token = await response.text();
+    console.log("TOKEN:", token);
+
+    localStorage.setItem("token", token);
+}
+</script>
+
+</body>
+</html>
